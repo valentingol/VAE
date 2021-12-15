@@ -5,8 +5,11 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from time import time
 
-from tf.losses import conditional_cross_entropy
-from utils.plot import plot_latent_tf, plot_images
+from Tensorflow.losses import conditional_cross_entropy
+from Tensorflow.plot import plot_latent, plot_images
+kl = tf.keras.layers
+
+
 kl = tf.keras.layers
 
 def mnist_img_dataset(batch_size):
@@ -17,8 +20,8 @@ def mnist_img_dataset(batch_size):
 
     (x_train, _), (x_test, _) = tf.keras.datasets.mnist.load_data()
     X = tf.concat([x_train, x_test], axis=0)
-    ds = tf.data.Dataset.from_tensor_slices(X)
-    ds = ds.shuffle(X.shape[0]).batch(batch_size).cache().prefetch(1)
+    ds = tf.data.Dataset.from_tensor_slices(X).cache()
+    ds = ds.shuffle(X.shape[0]).batch(batch_size).prefetch(1)
     ds = ds.map(preprocess)
     return ds
 
@@ -44,8 +47,10 @@ class ConvVAE(tf.keras.Model):
             kl.Reshape(target_shape=(h_r, w_r, 32)),
             kl.Conv2DTranspose(filters=64, kernel_size=3, strides=2,
                                padding='same'),
+            kl.ReLU(),
             kl.Conv2DTranspose(filters=32, kernel_size=3, strides=2,
                                padding='same'),
+            kl.ReLU(),
             kl.Conv2DTranspose(filters=c, kernel_size=3, strides=1,
                                padding='same'),
         ])
@@ -63,7 +68,7 @@ class ConvVAE(tf.keras.Model):
     @tf.function
     def generate(self, z=None, n=None, seed=None):
         if z is None:
-            z = tf.random.normal(shape=(n, self.latent_dim), seed=seed) + 1
+            z = tf.random.normal(shape=(n, self.latent_dim), seed=seed)
         return tf.nn.sigmoid(self.decoder(z))
 
     def call(self, x):
@@ -133,16 +138,16 @@ if __name__ == '__main__':
     # max_time: in sec, 0 or None for no limit
     # gen_imgs: if True, generate images at every epochs
     name = 'conv_vae'
-    save = False
+    save = True
 
-    latent_dim = 3
+    latent_dim = 2
     learning_rate = 1e-3
     alpha = 0.2
     batch_size = 512
-    n_epochs = 10
-    max_time = 20
+    n_epochs = 100
+    max_time = None
 
-    verbose = False
+    verbose = True
     gen_imgs = True
     num_images = 25
 
@@ -164,7 +169,8 @@ if __name__ == '__main__':
           gen_imgs=gen_imgs,
           num_images=num_images)
 
-    plot_latent_tf(vae, 20, latent_dim, im_size=28)
+    # Plot images with an ordered grid of latent vectors from N(0, 1)
+    plot_latent(vae, 20, latent_dim, im_size=28)
 
     if save:
-        vae.save('./tf/models/' + name, save_format='tf')
+        vae.save('./Tensorflow/models/' + name, save_format='tf')
