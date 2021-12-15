@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
+
 def plot_images(axes, model, num_images=9, block=False):
     imgs = model.generate(n=num_images)
     for i, ax in enumerate(axes.flat):
@@ -13,7 +14,7 @@ def plot_images(axes, model, num_images=9, block=False):
         plt.pause(0.5)
 
 
-def plot_latent_tf(model, n, latent_dim, im_size=28):
+def plot_latent(model, n, latent_dim, im_size=28):
     """Plots n x n digit images decoded from the latent space."""
 
     norm = tfp.distributions.Normal(0, 1)
