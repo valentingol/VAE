@@ -1,5 +1,6 @@
+haiku>=0.01
+jax>=0.2.26
 matplotlib>=3.5.1
 numpy>=1.21.4
-setuptools>=59.1.1
-tensorflow>=2.7.0
-tensorflow_probability>=0.15.0
+optax>=0.1.0
+tensorflow-cpu>=2.7.0
